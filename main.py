@@ -43,18 +43,18 @@ amarelo    = (255, 215,   0)
 vermelho   = (220,  50,  50)
 
 # ── Assets (agora em bases/) ──────────────────────────────────────────────────
-fundo      = pygame.image.load("bases/background.jpg")
-fundoDead  = pygame.image.load("bases/backgroundDead.jpg")
-fundoStart = pygame.image.load("bases/backgroundStart.jpg")
+fundo      = pygame.image.load("bases/fundo.jpg")
+fundoDead  = pygame.image.load("bases/fundomorte.png")
+fundoStart = pygame.image.load("bases/fundostart.jpg")
 
 fundo      = pygame.transform.scale(fundo,      (LARGURA, ALTURA))
 fundoDead  = pygame.transform.scale(fundoDead,  (LARGURA, ALTURA))
 fundoStart = pygame.transform.scale(fundoStart, (LARGURA, ALTURA))
 
 # Personagem (nave) e inimigo (asteroide/míssel)
-nave      = pygame.image.load("bases/IronMan.png")
+nave      = pygame.image.load("bases/fantasma.png")
 nave      = pygame.transform.scale(nave, (116, 51))
-asteroide = pygame.image.load("bases/missile.png")
+asteroide = pygame.image.load("bases/bomba.png")
 asteroide = pygame.transform.scale(asteroide, (125, 25))
 
 missileSound  = pygame.mixer.Sound("bases/missile.wav")
@@ -129,11 +129,11 @@ def jogar():
                 pausado = not pausado
 
             # Ponto 13: Movimento SÓ em Y
-            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_UP:
+            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_w:
                 movimentoYNave = -velocidadeNave
-            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_DOWN:
+            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_s:
                 movimentoYNave = velocidadeNave
-            elif evento.type == pygame.KEYUP and evento.key in (pygame.K_UP, pygame.K_DOWN):
+            elif evento.type == pygame.KEYUP and evento.key in (pygame.K_w, pygame.K_s):
                 movimentoYNave = 0
 
         # ── Lógica só roda quando não pausado ────────────────────────────────
