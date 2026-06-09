@@ -1,73 +1,21 @@
-# 🚀 Space Defender
+O Jogo do Fantasma
 
-## Desenvolvedores
+Autor:
 
-| Nome Completo | RA (Registro Acadêmico) |
-|---------------|------------------------|
-| *(Seu nome completo aqui)* | *(Seu RA aqui)* |
-| *(Nome do colega — se dupla)* | *(RA do colega)* |
+Antonio Melo - RA: 1139562
 
----
+História do Jogo
+O jogador assume o papel de um Fantasma em um mundo assombrado que precisa sobreviver ao caos das explosões. Uma Bomba se aproxima continuamente pelo cenário, e você deve esquivar com rapidez e precisão utilizando as teclas W e S para sobreviver o máximo de tempo possível.
 
-## 📖 História do Jogo
+Cada desvio bem sucedido aprofunda o desafio - As bombas ganham velocidade, testando seus reflexos e estratégia. O objetivo é atingir a maior pontuação possível enquanto enfrentamos ondas cada vez mais intensas de perigo, competindo pela posição no hall da fama global do jogo.
 
-Em um futuro distante, a galáxia está sendo invadida por um enxame de asteroides mortais.
-Você é o último piloto de defesa da humanidade — sua missão é manter sua nave espacial em
-rota e desviar de todos os obstáculos pelo maior tempo possível.
-Quanto mais você aguentar, maior será sua pontuação no Hall da Fama.
-O universo conta com você, piloto!
+Um jogo perfeito para quem ama ação rápida, desafios progressivos e o estilo icônico de jogos arcade.
 
----
+🛠️ Tecnologias Utilizadas
+O projeto foi desenvolvido utilizando as seguintes tecnologias e bibliotecas:
 
-## 🎮 Como Jogar
+- Python - Linguagem de programação principal
 
-- **Setas ↑ / ↓** — mover a nave para cima ou para baixo
-- **Espaço** — pausar / retomar o jogo
-- **ESC** — fechar o jogo
-- Cada asteroide desviado vale **1 ponto**
-- A dificuldade aumenta progressivamente
+- Pygame - Engine gráfica para renderização de sprites, animações, colisões e eventos de entrada
 
----
-
-## 🛠️ Tecnologias Utilizadas
-
-| Tecnologia | Versão / Descrição |
-|---|---|
-| Python | 3.12 |
-| Pygame | Renderização gráfica, sons e controle de eventos |
-| pyttsx3 | Text-to-Speech (voz de boas-vindas e game over) |
-| cx_Freeze | Geração do executável `.exe` |
-| JSON | Persistência de pontuações (`base.atitus`) |
-
----
-
-## 📁 Estrutura do Projeto
-
-```
-IronManV2/
-├── bases/          ← Todos os assets (imagens, sons, ícones)
-├── recursos/
-│   ├── funcoes.py  ← Funções de banco de dados e log
-│   └── trabalho.py ← Funções auxiliares (TTS, telas, desenhos)
-├── main.py         ← Arquivo principal do jogo
-├── setup.py        ← Configuração do executável
-├── base.atitus     ← Banco de dados de pontuações (JSON)
-├── log.dat         ← Log de partidas
-└── readme.md       ← Este arquivo
-```
-
----
-
-## ▶️ Como Executar
-
-```bash
-python main.py
-```
-
-## 📦 Gerar Executável
-
-```bash
-python setup.py build
-```
-
-O executável será gerado na pasta `build/`.
+- JSON - Formato para persistência de dados de pontuação e rankings
