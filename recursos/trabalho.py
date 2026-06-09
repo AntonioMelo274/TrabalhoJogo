@@ -1,12 +1,31 @@
 import pygame
 import json
 import os
+import threading
 from datetime import datetime
 
-# Pasta raiz do projeto (IronManV2/IronManV2/)
+# Pasta raiz do projeto
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+# ─── Ponto 19: pyttsx3 ────────────────────────────────────────────────────────
+def falar_texto(texto: str):
+    """Fala um texto usando pyttsx3 em thread separada (não bloqueia o jogo)."""
+    def _falar():
+        try:
+            import pyttsx3
+            engine = pyttsx3.init()
+            engine.setProperty("rate", 160)
+            engine.say(texto)
+            engine.runAndWait()
+        except Exception:
+            pass  # Silencia se TTS não disponível
+
+    t = threading.Thread(target=_falar, daemon=True)
+    t.start()
+
+
+# ─── Utilitários de desenho ───────────────────────────────────────────────────
 def desenhar_texto_centralizado(tela, texto, fonte, cor, y):
     """Renderiza texto horizontalmente centralizado na tela."""
     superficie = fonte.render(texto, True, cor)
@@ -24,15 +43,17 @@ def desenhar_caixa_texto(tela, fonte, cor_texto, cor_fundo, cor_borda, rect, tex
     tela.blit(superficie, (tx, ty))
 
 
+# ─── Ponto 11: Overlay de pausa ──────────────────────────────────────────────
 def desenhar_pausa(tela):
-    """Sobrepõe a tela com um overlay semitransparente e exibe 'PAUSE' no centro."""
+    """Sobrepõe a tela com overlay semitransparente e exibe 'PAUSE' no centro."""
     largura = tela.get_width()
     altura = tela.get_height()
+
     overlay = pygame.Surface((largura, altura), pygame.SRCALPHA)
-    overlay.fill((0, 0, 0, 150))
+    overlay.fill((0, 0, 0, 160))
     tela.blit(overlay, (0, 0))
 
-    fonte_pause = pygame.font.SysFont("comicsans", 80, bold=True)
+    fonte_pause = pygame.font.SysFont("comicsans", 90, bold=True)
     superficie = fonte_pause.render("PAUSE", True, (255, 255, 0))
     x = (largura - superficie.get_width()) // 2
     y = (altura - superficie.get_height()) // 2
@@ -44,6 +65,7 @@ def desenhar_pausa(tela):
     tela.blit(sub, (x2, y + superficie.get_height() + 15))
 
 
+# ─── Leitura do melhor pontuador ─────────────────────────────────────────────
 def obter_melhor_pontuador(caminho_banco=None):
     """Lê o banco de dados e retorna (nome, pontos, data) do maior pontuador."""
     if caminho_banco is None:
@@ -51,17 +73,11 @@ def obter_melhor_pontuador(caminho_banco=None):
     try:
         with open(caminho_banco, "r") as f:
             dados = f.read()
-        if dados:
-            dadosDict = json.loads(dados)
-        else:
-            dadosDict = {}
+        dadosDict = json.loads(dados) if dados else {}
     except Exception:
         dadosDict = {}
 
-    nome_maior = None
-    maior_pontos = -1
-    data_jogada = None
-
+    nome_maior, maior_pontos, data_jogada = None, -1, None
     for nome, info in dadosDict.items():
         pontos = info[0]
         if pontos > maior_pontos:
@@ -72,44 +88,46 @@ def obter_melhor_pontuador(caminho_banco=None):
     return nome_maior, maior_pontos, data_jogada
 
 
+# ─── Ponto 9: Tela de boas-vindas ────────────────────────────────────────────
 def tela_boas_vindas(tela, relogio, nome_jogador, fundo_bv):
     """
     Exibe a tela de boas-vindas com:
       - Nome do jogador
       - Explicação da mecânica
       - Melhor pontuador + data/hora
-      - Botão único para iniciar a partida
+      - Botão único para iniciar a partida (sem botão fechar — usar X da janela)
     Retorna quando o jogador clica em 'Iniciar'.
     """
     largura = tela.get_width()
     altura = tela.get_height()
 
-    fonte_titulo = pygame.font.SysFont("comicsans", 48, bold=True)
-    fonte_media = pygame.font.SysFont("comicsans", 26)
+    fonte_titulo  = pygame.font.SysFont("comicsans", 46, bold=True)
+    fonte_media   = pygame.font.SysFont("comicsans", 26)
     fonte_pequena = pygame.font.SysFont("comicsans", 20)
 
-    amarelo = (255, 215, 0)
-    branco = (255, 255, 255)
-    preto = (0, 0, 0)
-    azul_escuro = (10, 10, 60)
-    verde = (50, 200, 50)
+    amarelo    = (255, 215,   0)
+    branco     = (255, 255, 255)
+    verde      = ( 50, 210,  80)
+    azul_esc   = ( 10,  10,  50)
 
-    btn_largura, btn_altura = 260, 60
+    btn_largura, btn_altura = 280, 62
     btn_x = (largura - btn_largura) // 2
-    btn_y = altura - 130
+    btn_y = altura - 120
     btn_rect = pygame.Rect(btn_x, btn_y, btn_largura, btn_altura)
 
     nome_maior, maior_pontos, data_jogada = obter_melhor_pontuador()
     hora_atual = datetime.now().strftime("%d/%m/%Y  %H:%M:%S")
 
-    btn_hover = False
-
     mecanica = [
-        "Desvie dos mísseis usando as setas do teclado!",
-        "Cada míssil desviado vale 1 ponto.",
+        "Pilote sua nave e desvie dos asteroides!",
+        "Use as setas CIMA / BAIXO para mover a nave.",
+        "Cada asteroide desviado vale 1 ponto.",
         "A velocidade aumenta conforme você avança.",
         "Boa sorte, piloto!",
     ]
+
+    # Fala boas-vindas via TTS (Ponto 19)
+    falar_texto(f"Bem-vindo, {nome_jogador}! Prepare-se para defender o espaço!")
 
     while True:
         mouse_pos = pygame.mouse.get_pos()
@@ -124,55 +142,56 @@ def tela_boas_vindas(tela, relogio, nome_jogador, fundo_bv):
                 raise SystemExit
             if evento.type == pygame.MOUSEBUTTONUP and evento.button == 1:
                 if btn_rect.collidepoint(evento.pos):
-                    return  # sai da tela de boas-vindas → inicia o jogo
+                    return  # inicia o jogo
 
-        # ---- Fundo ----
+        # Fundo
         if fundo_bv:
             tela.blit(pygame.transform.scale(fundo_bv, (largura, altura)), (0, 0))
         else:
-            tela.fill(azul_escuro)
+            tela.fill(azul_esc)
 
-        # Overlay semitransparente para legibilidade
         overlay = pygame.Surface((largura, altura), pygame.SRCALPHA)
-        overlay.fill((0, 0, 20, 190))
+        overlay.fill((0, 0, 20, 200))
         tela.blit(overlay, (0, 0))
 
-        # ---- Título ----
-        desenhar_texto_centralizado(tela, "Bem-vindo ao Iron Man Game!", fonte_titulo, amarelo, 40)
+        # Título
+        desenhar_texto_centralizado(tela, "🚀 Space Defender", fonte_titulo, amarelo, 38)
 
-        # ---- Nome do jogador ----
-        desenhar_texto_centralizado(tela, f"Jogador: {nome_jogador}", fonte_media, branco, 115)
+        # Nome do jogador
+        desenhar_texto_centralizado(tela, f"Piloto: {nome_jogador}", fonte_media, branco, 112)
 
-        # ---- Separador ----
-        pygame.draw.line(tela, amarelo, (80, 160), (largura - 80, 160), 2)
+        pygame.draw.line(tela, amarelo, (80, 158), (largura - 80, 158), 2)
 
-        # ---- Como jogar ----
-        desenhar_texto_centralizado(tela, "Como Jogar:", fonte_media, amarelo, 180)
+        # Mecânica
+        desenhar_texto_centralizado(tela, "Como Jogar:", fonte_media, amarelo, 175)
         for i, linha in enumerate(mecanica):
-            desenhar_texto_centralizado(tela, linha, fonte_pequena, branco, 220 + i * 32)
+            desenhar_texto_centralizado(tela, linha, fonte_pequena, branco, 215 + i * 32)
 
-        # ---- Separador ----
-        pygame.draw.line(tela, amarelo, (80, 370), (largura - 80, 370), 2)
+        pygame.draw.line(tela, amarelo, (80, 380), (largura - 80, 380), 2)
 
-        # ---- Melhor pontuador ----
-        desenhar_texto_centralizado(tela, "Hall da Fama", fonte_media, amarelo, 390)
-        if nome_maior:
+        # Hall da Fama
+        desenhar_texto_centralizado(tela, "🏆 Hall da Fama", fonte_media, amarelo, 398)
+        if nome_maior and maior_pontos >= 0:
             desenhar_texto_centralizado(
                 tela,
                 f"{nome_maior}   |   {maior_pontos} pontos   |   {data_jogada}",
-                fonte_pequena,
-                verde,
-                435,
+                fonte_pequena, verde, 443,
             )
         else:
-            desenhar_texto_centralizado(tela, "Nenhum registro ainda. Seja o primeiro!", fonte_pequena, verde, 435)
+            desenhar_texto_centralizado(
+                tela, "Nenhum registro ainda. Seja o primeiro!", fonte_pequena, verde, 443
+            )
 
-        # ---- Data/hora atual ----
-        desenhar_texto_centralizado(tela, f"Agora: {hora_atual}", fonte_pequena, (180, 180, 180), 475)
+        # Data/hora atual da partida
+        desenhar_texto_centralizado(
+            tela, f"Data da Partida: {hora_atual}", fonte_pequena, (180, 180, 180), 485
+        )
 
-        # ---- Botão Iniciar ----
-        cor_btn = (50, 200, 50) if btn_hover else (30, 150, 30)
-        desenhar_caixa_texto(tela, fonte_media, branco, cor_btn, amarelo, btn_rect, "▶  Iniciar Partida")
+        # Botão único — sem botão fechar (Ponto 9)
+        cor_btn = (50, 200, 70) if btn_hover else (30, 140, 50)
+        desenhar_caixa_texto(
+            tela, fonte_media, branco, cor_btn, amarelo, btn_rect, "▶  Iniciar Partida"
+        )
 
         pygame.display.update()
         relogio.tick(60)
