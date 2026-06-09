@@ -100,14 +100,15 @@ def tela_boas_vindas(tela, relogio, nome_jogador, fundo_bv):
     hora_atual = datetime.now().strftime("%d/%m/%Y  %H:%M:%S")
 
     mecanica = [
-        "Pilote sua nave e desvie dos asteroides!",
-        "Use as setas CIMA / BAIXO para mover a nave.",
-        "Cada asteroide desviado vale 1 ponto.",
+        "Mova-se e desvie das bombas!",
+        "Use W para subir e S para descer.",
+        "Cada bomba desviada vale 1 ponto.",
         "A velocidade aumenta conforme você avança.",
-        "Boa sorte, piloto!",
+        "Para sair do jogo basta apertar ESC",
+        "Boa sorte, Fantasma!",
     ]
 
-    falar_texto(f"Bem-vindo, {nome_jogador}! Prepare-se para defender o espaço!")
+    falar_texto(f"Bem-vindo, {nome_jogador}! Prepare-se para defender o mundo sombrio!")
 
     while True:
         mouse_pos = pygame.mouse.get_pos()
@@ -133,8 +134,8 @@ def tela_boas_vindas(tela, relogio, nome_jogador, fundo_bv):
         overlay.fill((0, 0, 20, 200))
         tela.blit(overlay, (0, 0))
 
-        desenhar_texto_centralizado(tela, "🚀 Space Defender", fonte_titulo, amarelo, 38)
-        desenhar_texto_centralizado(tela, f"Piloto: {nome_jogador}", fonte_media, branco, 112)
+        desenhar_texto_centralizado(tela, "Jogo do Fantasma", fonte_titulo, amarelo, 38)
+        desenhar_texto_centralizado(tela, f"Fantasma: {nome_jogador}", fonte_media, branco, 112)
 
         pygame.draw.line(tela, amarelo, (80, 158), (largura - 80, 158), 2)
 

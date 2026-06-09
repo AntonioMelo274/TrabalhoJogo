@@ -21,14 +21,14 @@ pygame.init()
 LARGURA, ALTURA = 1000, 700
 
 while True:
-    nome = input("Nickname do Piloto: ")
+    nome = input("Nickname do Fantasma: ")
     if len(nome) > 0:
         break
     else:
         print("Nome inválido! Tente novamente.")
 
-pygame.display.set_caption("Space Defender - Pensamento Computacional")
-icone = pygame.image.load("bases/icone.png")
+pygame.display.set_caption("Jogo do Fantasma")
+icone = pygame.image.load("bases/fantasma.png")
 pygame.display.set_icon(icone)
 relogio = pygame.time.Clock()
 tela = pygame.display.set_mode((LARGURA, ALTURA))
@@ -38,22 +38,21 @@ preto    = (  0,   0,   0)
 amarelo  = (255, 215,   0)
 vermelho = (220,  50,  50)
 
-fundo      = pygame.image.load("bases/background.jpg")
-fundoDead  = pygame.image.load("bases/backgroundDead.jpg")
-fundoStart = pygame.image.load("bases/backgroundStart.jpg")
+fundo      = pygame.image.load("bases/fundo.jpg")
+fundoDead  = pygame.image.load("bases/fundomorte.png")
+fundoStart = pygame.image.load("bases/fundostart.jpg")
 
 fundo      = pygame.transform.scale(fundo,      (LARGURA, ALTURA))
 fundoDead  = pygame.transform.scale(fundoDead,  (LARGURA, ALTURA))
 fundoStart = pygame.transform.scale(fundoStart, (LARGURA, ALTURA))
 
-nave      = pygame.image.load("bases/IronMan.png")
+nave      = pygame.image.load("bases/fantasma.png")
 nave      = pygame.transform.scale(nave, (116, 51))
-asteroide = pygame.image.load("bases/missile.png")
+asteroide = pygame.image.load("bases/bomba.png")
 asteroide = pygame.transform.scale(asteroide, (125, 25))
 
-missileSound  = pygame.mixer.Sound("bases/missile.wav")
-explosaoSound = pygame.mixer.Sound("bases/explosao.wav")
-pygame.mixer.music.load("bases/ironsound.mp3")
+explosaoSound = pygame.mixer.Sound("bases/explosao.mp3")
+pygame.mixer.music.load("bases/musica.mp3")
 
 fonteMenu    = pygame.font.SysFont("comicsans", 20)
 fonteGrande  = pygame.font.SysFont("comicsans", 36, bold=True)
@@ -95,7 +94,6 @@ def jogar():
     sol_pulsando = 1
     SOL_MIN, SOL_MAX = 35, 60
 
-    pygame.mixer.Sound.play(missileSound)
     pygame.mixer.music.play(-1)
 
     while True:
@@ -108,11 +106,11 @@ def jogar():
                 sys.exit()
             elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
                 pausado = not pausado
-            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_UP:
+            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_w:
                 movimentoYNave = -velocidadeNave
-            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_DOWN:
+            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_s:
                 movimentoYNave = velocidadeNave
-            elif evento.type == pygame.KEYUP and evento.key in (pygame.K_UP, pygame.K_DOWN):
+            elif evento.type == pygame.KEYUP and evento.key in (pygame.K_w, pygame.K_s):
                 movimentoYNave = 0
 
         if not pausado:
@@ -121,7 +119,6 @@ def jogar():
 
             posicaoXAst -= velocidadeAst
             if posicaoXAst < -125:
-                pygame.mixer.Sound.play(missileSound)
                 posicaoXAst   = LARGURA
                 posicaoYAst   = random.randint(0, ALTURA - 60)
                 pontos       += 1
@@ -208,9 +205,6 @@ def dead():
             elif evento.type == pygame.MOUSEBUTTONUP:
                 if startButton.collidepoint(evento.pos):
                     jogar()
-                if quitButton.collidepoint(evento.pos):
-                    pygame.quit()
-                    sys.exit()
 
         tela.fill(preto)
         tela.blit(fundoDead, (0, 0))
@@ -224,7 +218,7 @@ def dead():
         if nome_m and pts_m >= 0:
             desenhar_texto_centralizado(
                 tela,
-                f"🏆  Melhor Piloto: {nome_m}  |  {pts_m} pts  |  {data_m}",
+                f"Melhor Piloto: {nome_m}  |  {pts_m} pts  |  {data_m}",
                 fonteMenu, amarelo, 130,
             )
         else:
@@ -234,22 +228,12 @@ def dead():
 
         startButton = pygame.draw.rect(
             tela, branco,
-            pygame.Rect(LARGURA // 2 - 230, 210, btn_larg, btn_alt),
+            pygame.Rect(LARGURA // 2 - 105, 210, btn_larg, btn_alt),
             border_radius=12,
         )
         tela.blit(
             fonteMenu.render("Jogar Novamente", True, preto),
-            (LARGURA // 2 - 218, 224),
-        )
-
-        quitButton = pygame.draw.rect(
-            tela, branco,
-            pygame.Rect(LARGURA // 2 + 20, 210, btn_larg, btn_alt),
-            border_radius=12,
-        )
-        tela.blit(
-            fonteMenu.render("Sair do Jogo", True, preto),
-            (LARGURA // 2 + 40, 224),
+            (LARGURA // 2 - 93, 224),
         )
 
         pygame.display.update()
@@ -269,9 +253,6 @@ def start():
             elif evento.type == pygame.MOUSEBUTTONUP:
                 if startButton.collidepoint(evento.pos):
                     jogar()
-                if quitButton.collidepoint(evento.pos):
-                    pygame.quit()
-                    sys.exit()
 
         tela.fill(preto)
         tela.blit(fundoStart, (0, 0))
@@ -280,11 +261,6 @@ def start():
             tela, branco, (10, 10, btn_larg, btn_alt), border_radius=12
         )
         tela.blit(fonteMenu.render("Iniciar Game", True, preto), (30, 22))
-
-        quitButton = pygame.draw.rect(
-            tela, branco, (10, 70, btn_larg, btn_alt), border_radius=12
-        )
-        tela.blit(fonteMenu.render("Sair do Game", True, preto), (30, 82))
 
         texto_best = fonteMenu.render(
             f"The Best - {nome_maior} - {maior_pontos} - {dataJogada}",
