@@ -4,13 +4,10 @@ import os
 import threading
 from datetime import datetime
 
-# Pasta raiz do projeto
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# ─── Ponto 19: pyttsx3 ────────────────────────────────────────────────────────
 def falar_texto(texto: str):
-    """Fala um texto usando pyttsx3 em thread separada (não bloqueia o jogo)."""
     def _falar():
         try:
             import pyttsx3
@@ -19,22 +16,19 @@ def falar_texto(texto: str):
             engine.say(texto)
             engine.runAndWait()
         except Exception:
-            pass  # Silencia se TTS não disponível
+            pass
 
     t = threading.Thread(target=_falar, daemon=True)
     t.start()
 
 
-# ─── Utilitários de desenho ───────────────────────────────────────────────────
 def desenhar_texto_centralizado(tela, texto, fonte, cor, y):
-    """Renderiza texto horizontalmente centralizado na tela."""
     superficie = fonte.render(texto, True, cor)
     x = (tela.get_width() - superficie.get_width()) // 2
     tela.blit(superficie, (x, y))
 
 
 def desenhar_caixa_texto(tela, fonte, cor_texto, cor_fundo, cor_borda, rect, texto):
-    """Desenha uma caixa de texto estilizada com fundo e borda."""
     pygame.draw.rect(tela, cor_fundo, rect, border_radius=10)
     pygame.draw.rect(tela, cor_borda, rect, 2, border_radius=10)
     superficie = fonte.render(texto, True, cor_texto)
@@ -43,9 +37,7 @@ def desenhar_caixa_texto(tela, fonte, cor_texto, cor_fundo, cor_borda, rect, tex
     tela.blit(superficie, (tx, ty))
 
 
-# ─── Ponto 11: Overlay de pausa ──────────────────────────────────────────────
 def desenhar_pausa(tela):
-    """Sobrepõe a tela com overlay semitransparente e exibe 'PAUSE' no centro."""
     largura = tela.get_width()
     altura = tela.get_height()
 
@@ -65,9 +57,7 @@ def desenhar_pausa(tela):
     tela.blit(sub, (x2, y + superficie.get_height() + 15))
 
 
-# ─── Leitura do melhor pontuador ─────────────────────────────────────────────
 def obter_melhor_pontuador(caminho_banco=None):
-    """Lê o banco de dados e retorna (nome, pontos, data) do maior pontuador."""
     if caminho_banco is None:
         caminho_banco = os.path.join(_ROOT, "base.atitus")
     try:
@@ -88,16 +78,7 @@ def obter_melhor_pontuador(caminho_banco=None):
     return nome_maior, maior_pontos, data_jogada
 
 
-# ─── Ponto 9: Tela de boas-vindas ────────────────────────────────────────────
 def tela_boas_vindas(tela, relogio, nome_jogador, fundo_bv):
-    """
-    Exibe a tela de boas-vindas com:
-      - Nome do jogador
-      - Explicação da mecânica
-      - Melhor pontuador + data/hora
-      - Botão único para iniciar a partida (sem botão fechar — usar X da janela)
-    Retorna quando o jogador clica em 'Iniciar'.
-    """
     largura = tela.get_width()
     altura = tela.get_height()
 
@@ -105,10 +86,10 @@ def tela_boas_vindas(tela, relogio, nome_jogador, fundo_bv):
     fonte_media   = pygame.font.SysFont("comicsans", 26)
     fonte_pequena = pygame.font.SysFont("comicsans", 20)
 
-    amarelo    = (255, 215,   0)
-    branco     = (255, 255, 255)
-    verde      = ( 50, 210,  80)
-    azul_esc   = ( 10,  10,  50)
+    amarelo  = (255, 215,   0)
+    branco   = (255, 255, 255)
+    verde    = ( 50, 210,  80)
+    azul_esc = ( 10,  10,  50)
 
     btn_largura, btn_altura = 280, 62
     btn_x = (largura - btn_largura) // 2
@@ -126,7 +107,6 @@ def tela_boas_vindas(tela, relogio, nome_jogador, fundo_bv):
         "Boa sorte, piloto!",
     ]
 
-    # Fala boas-vindas via TTS (Ponto 19)
     falar_texto(f"Bem-vindo, {nome_jogador}! Prepare-se para defender o espaço!")
 
     while True:
@@ -142,9 +122,8 @@ def tela_boas_vindas(tela, relogio, nome_jogador, fundo_bv):
                 raise SystemExit
             if evento.type == pygame.MOUSEBUTTONUP and evento.button == 1:
                 if btn_rect.collidepoint(evento.pos):
-                    return  # inicia o jogo
+                    return
 
-        # Fundo
         if fundo_bv:
             tela.blit(pygame.transform.scale(fundo_bv, (largura, altura)), (0, 0))
         else:
@@ -154,22 +133,17 @@ def tela_boas_vindas(tela, relogio, nome_jogador, fundo_bv):
         overlay.fill((0, 0, 20, 200))
         tela.blit(overlay, (0, 0))
 
-        # Título
         desenhar_texto_centralizado(tela, "🚀 Space Defender", fonte_titulo, amarelo, 38)
-
-        # Nome do jogador
         desenhar_texto_centralizado(tela, f"Piloto: {nome_jogador}", fonte_media, branco, 112)
 
         pygame.draw.line(tela, amarelo, (80, 158), (largura - 80, 158), 2)
 
-        # Mecânica
         desenhar_texto_centralizado(tela, "Como Jogar:", fonte_media, amarelo, 175)
         for i, linha in enumerate(mecanica):
             desenhar_texto_centralizado(tela, linha, fonte_pequena, branco, 215 + i * 32)
 
         pygame.draw.line(tela, amarelo, (80, 380), (largura - 80, 380), 2)
 
-        # Hall da Fama
         desenhar_texto_centralizado(tela, "🏆 Hall da Fama", fonte_media, amarelo, 398)
         if nome_maior and maior_pontos >= 0:
             desenhar_texto_centralizado(
@@ -182,12 +156,10 @@ def tela_boas_vindas(tela, relogio, nome_jogador, fundo_bv):
                 tela, "Nenhum registro ainda. Seja o primeiro!", fonte_pequena, verde, 443
             )
 
-        # Data/hora atual da partida
         desenhar_texto_centralizado(
             tela, f"Data da Partida: {hora_atual}", fonte_pequena, (180, 180, 180), 485
         )
 
-        # Botão único — sem botão fechar (Ponto 9)
         cor_btn = (50, 200, 70) if btn_hover else (30, 140, 50)
         desenhar_caixa_texto(
             tela, fonte_media, branco, cor_btn, amarelo, btn_rect, "▶  Iniciar Partida"

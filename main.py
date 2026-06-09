@@ -10,7 +10,6 @@ from recursos.trabalho import (
     falar_texto,
 )
 
-# Garante que caminhos relativos partem sempre da pasta do main.py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(BASE_DIR)
 
@@ -19,7 +18,6 @@ inicializarBancoDeDados()
 nome_maior, maior_pontos, dataJogada = maior_pontuador()
 pygame.init()
 
-# ── Ponto 8: Tela 1000 x 700 ─────────────────────────────────────────────────
 LARGURA, ALTURA = 1000, 700
 
 while True:
@@ -29,32 +27,28 @@ while True:
     else:
         print("Nome inválido! Tente novamente.")
 
-# ── Configuração da janela ────────────────────────────────────────────────────
 pygame.display.set_caption("Space Defender - Pensamento Computacional")
 icone = pygame.image.load("bases/icone.png")
 pygame.display.set_icon(icone)
 relogio = pygame.time.Clock()
 tela = pygame.display.set_mode((LARGURA, ALTURA))
 
-# Cores
-branco     = (255, 255, 255)
-preto      = (  0,   0,   0)
-amarelo    = (255, 215,   0)
-vermelho   = (220,  50,  50)
+branco   = (255, 255, 255)
+preto    = (  0,   0,   0)
+amarelo  = (255, 215,   0)
+vermelho = (220,  50,  50)
 
-# ── Assets (agora em bases/) ──────────────────────────────────────────────────
-fundo      = pygame.image.load("bases/fundo.jpg")
-fundoDead  = pygame.image.load("bases/fundomorte.png")
-fundoStart = pygame.image.load("bases/fundostart.jpg")
+fundo      = pygame.image.load("bases/background.jpg")
+fundoDead  = pygame.image.load("bases/backgroundDead.jpg")
+fundoStart = pygame.image.load("bases/backgroundStart.jpg")
 
 fundo      = pygame.transform.scale(fundo,      (LARGURA, ALTURA))
 fundoDead  = pygame.transform.scale(fundoDead,  (LARGURA, ALTURA))
 fundoStart = pygame.transform.scale(fundoStart, (LARGURA, ALTURA))
 
-# Personagem (nave) e inimigo (asteroide/míssel)
-nave      = pygame.image.load("bases/fantasma.png")
+nave      = pygame.image.load("bases/IronMan.png")
 nave      = pygame.transform.scale(nave, (116, 51))
-asteroide = pygame.image.load("bases/bomba.png")
+asteroide = pygame.image.load("bases/missile.png")
 asteroide = pygame.transform.scale(asteroide, (125, 25))
 
 missileSound  = pygame.mixer.Sound("bases/missile.wav")
@@ -65,34 +59,26 @@ fonteMenu    = pygame.font.SysFont("comicsans", 20)
 fonteGrande  = pygame.font.SysFont("comicsans", 36, bold=True)
 fontePequena = pygame.font.SysFont("comicsans", 16)
 
-# ── Ponto 9: Tela de boas-vindas ──────────────────────────────────────────────
 tela_boas_vindas(tela, relogio, nome, fundoStart)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 def jogar():
-    # Fundo rolante
     fundoMov1 = 0
     fundoMov2 = LARGURA
 
-    # ── Ponto 13: Personagem move-se SOMENTE no eixo Y ───────────────────────
-    posicaoXNave      = 50
-    posicaoYNave      = ALTURA // 2
-    movimentoYNave    = 0
-    velocidadeNave    = 6
+    posicaoXNave   = 50
+    posicaoYNave   = ALTURA // 2
+    movimentoYNave = 0
+    velocidadeNave = 6
 
-    # Asteroide (inimigo)
-    posicaoXAst  = LARGURA
-    posicaoYAst  = random.randint(0, ALTURA - 60)
+    posicaoXAst   = LARGURA
+    posicaoYAst   = random.randint(0, ALTURA - 60)
     velocidadeAst = 4
 
     pontos      = 0
     dificuldade = 20
+    pausado     = False
 
-    # ── Ponto 11: Controle de pausa ──────────────────────────────────────────
-    pausado = False
-
-    # ── Ponto 14: Objetos decorativos randômicos (estrelas piscantes) ─────────
     estrelas = [
         {
             "x": random.randint(0, LARGURA),
@@ -105,9 +91,8 @@ def jogar():
         for _ in range(25)
     ]
 
-    # ── Ponto 16: Sol pulsante ────────────────────────────────────────────────
     sol_raio     = 45
-    sol_pulsando = 1      # +1 crescendo, -1 diminuindo
+    sol_pulsando = 1
     SOL_MIN, SOL_MAX = 35, 60
 
     pygame.mixer.Sound.play(missileSound)
@@ -118,31 +103,22 @@ def jogar():
             if evento.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
-            # Ponto 20: ESC fecha o jogo
             elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
-
-            # Ponto 11: Space pausa/despausa
             elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
                 pausado = not pausado
-
-            # Ponto 13: Movimento SÓ em Y
-            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_w:
+            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_UP:
                 movimentoYNave = -velocidadeNave
-            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_s:
+            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_DOWN:
                 movimentoYNave = velocidadeNave
-            elif evento.type == pygame.KEYUP and evento.key in (pygame.K_w, pygame.K_s):
+            elif evento.type == pygame.KEYUP and evento.key in (pygame.K_UP, pygame.K_DOWN):
                 movimentoYNave = 0
 
-        # ── Lógica só roda quando não pausado ────────────────────────────────
         if not pausado:
-            # Mover nave (eixo Y apenas — Ponto 13)
             posicaoYNave += movimentoYNave
             posicaoYNave  = max(0, min(posicaoYNave, ALTURA - 51))
 
-            # Mover asteroide
             posicaoXAst -= velocidadeAst
             if posicaoXAst < -125:
                 pygame.mixer.Sound.play(missileSound)
@@ -151,7 +127,6 @@ def jogar():
                 pontos       += 1
                 velocidadeAst += 0.5
 
-            # Fundo rolante
             fundoMov1 -= 2
             fundoMov2 -= 2
             if fundoMov1 <= -LARGURA:
@@ -159,55 +134,45 @@ def jogar():
             if fundoMov2 <= -LARGURA:
                 fundoMov2 = LARGURA
 
-            # Sol pulsante (Ponto 16)
             sol_raio += sol_pulsando * 0.15
             if sol_raio >= SOL_MAX:
                 sol_pulsando = -1
             elif sol_raio <= SOL_MIN:
                 sol_pulsando = 1
 
-            # Estrelas decorativas (Ponto 14)
             for e in estrelas:
                 e["x"] -= e["vel"]
                 if e["x"] < -10:
-                    e["x"]     = LARGURA + 5
-                    e["y"]     = random.randint(10, ALTURA - 10)
-                    e["vel"]   = random.uniform(0.3, 1.5)
+                    e["x"]   = LARGURA + 5
+                    e["y"]   = random.randint(10, ALTURA - 10)
+                    e["vel"] = random.uniform(0.3, 1.5)
                 e["brilho"] += e["delta_brilho"]
                 if e["brilho"] >= 255 or e["brilho"] <= 80:
                     e["delta_brilho"] = -e["delta_brilho"]
 
-        # ── Desenho ───────────────────────────────────────────────────────────
         tela.fill(preto)
         tela.blit(fundo, (fundoMov1, 0))
         tela.blit(fundo, (fundoMov2, 0))
 
-        # Sol pulsante no canto superior direito (Ponto 16)
-        pygame.draw.circle(tela, (255, 230, 0),  (LARGURA - 70, 70), int(sol_raio))
-        pygame.draw.circle(tela, (255, 200, 0),  (LARGURA - 70, 70), int(sol_raio * 0.65))
+        pygame.draw.circle(tela, (255, 230, 0), (LARGURA - 70, 70), int(sol_raio))
+        pygame.draw.circle(tela, (255, 200, 0), (LARGURA - 70, 70), int(sol_raio * 0.65))
 
-        # Estrelas decorativas (Ponto 14)
         for e in estrelas:
             b = max(0, min(255, int(e["brilho"])))
             pygame.draw.circle(tela, (b, b, b), (int(e["x"]), int(e["y"])), e["raio"])
 
-        # Nave e asteroide
         tela.blit(nave,      (posicaoXNave, posicaoYNave))
         tela.blit(asteroide, (posicaoXAst,  posicaoYAst))
 
-        # HUD – pontuação
         texto_pontos = fonteGrande.render(f"Pontos: {int(pontos)}", True, amarelo)
         tela.blit(texto_pontos, (10, 10))
 
-        # Ponto 12: mensagem discreta
         hint = fontePequena.render("Press Space to Pause Game", True, (180, 180, 180))
         tela.blit(hint, (LARGURA - hint.get_width() - 10, ALTURA - 28))
 
-        # Ponto 11: overlay de pausa
         if pausado:
             desenhar_pausa(tela)
 
-        # ── Colisão ───────────────────────────────────────────────────────────
         pixelsNaveX = set(range(posicaoXNave, posicaoXNave + 116))
         pixelsNaveY = set(range(posicaoYNave, posicaoYNave + 51))
         pixelsAstX  = set(range(int(posicaoXAst), int(posicaoXAst) + 125))
@@ -223,14 +188,11 @@ def jogar():
         relogio.tick(60)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 def dead():
     pygame.mixer.music.stop()
     pygame.mixer.Sound.play(explosaoSound)
 
     nome_m, pts_m, data_m = maior_pontuador()
-
-    # Ponto 19: TTS no game over
     falar_texto("Game Over! Missão fracassada, piloto.")
 
     btn_larg, btn_alt = 210, 52
@@ -253,15 +215,12 @@ def dead():
         tela.fill(preto)
         tela.blit(fundoDead, (0, 0))
 
-        # Overlay
         ov = pygame.Surface((LARGURA, ALTURA), pygame.SRCALPHA)
         ov.fill((0, 0, 0, 120))
         tela.blit(ov, (0, 0))
 
-        # Título
         desenhar_texto_centralizado(tela, "GAME OVER", fonteGrande, vermelho, 60)
 
-        # Ponto 18: Melhor pontuador na tela de morte
         if nome_m and pts_m >= 0:
             desenhar_texto_centralizado(
                 tela,
@@ -273,7 +232,6 @@ def dead():
                 tela, "Nenhum registro encontrado.", fonteMenu, amarelo, 130
             )
 
-        # Botões
         startButton = pygame.draw.rect(
             tela, branco,
             pygame.Rect(LARGURA // 2 - 230, 210, btn_larg, btn_alt),
@@ -298,7 +256,6 @@ def dead():
         relogio.tick(60)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 def start():
     btn_larg, btn_alt = 200, 50
     while True:
