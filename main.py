@@ -28,7 +28,7 @@ while True:
         print("Nome inválido! Tente novamente.")
 
 pygame.display.set_caption("Jogo do Fantasma")
-icone = pygame.image.load("bases/fantasma.png")
+icone = pygame.image.load("bases/icone.png")
 pygame.display.set_icon(icone)
 relogio = pygame.time.Clock()
 tela = pygame.display.set_mode((LARGURA, ALTURA))

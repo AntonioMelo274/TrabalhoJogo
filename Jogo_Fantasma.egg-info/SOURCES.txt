@@ -1,0 +1,5 @@
+setup.py
+Jogo_Fantasma.egg-info/PKG-INFO
+Jogo_Fantasma.egg-info/SOURCES.txt
+Jogo_Fantasma.egg-info/dependency_links.txt
+Jogo_Fantasma.egg-info/top_level.txt
